@@ -80,10 +80,16 @@ export default new Vuex.Store({
           console.error(error);
         });
     },
-    getProducts({ commit, getters }) {
+    getProducts({ commit, getters }, verifyStock = false) {
       get(`${URL_BASE}/product`, getters.getToken)
         .then((response) => {
-          commit('setProducts', response.body);
+          let products = [];
+          if(verifyStock) {
+            products = response.body.filter(product => product.stock > 0);
+          } else {
+            products = response.body;
+          }
+          commit('setProducts', products);
         }).catch((error) => {
           console.error(error);
         });

@@ -284,6 +284,7 @@ export default {
             if (response.status) {
               this.message = "Factura guardada con exito!";
               this.updateIncrementalInvoice();
+              this.updateStocks(this.dataInvoice.products);
             }
           })
           .catch((error) => {
@@ -292,6 +293,35 @@ export default {
       } else {
         this.message = "Falta información importante en la factura";
       }
+    },
+    async updateStocks(listProducts) {
+      if(listProducts.length > 0) {
+        for(let product of listProducts) {
+          let oldStock = await this.getProduct(product._id).stock;
+          oldStock -= 1;
+          if(!oldStock) oldStock = 0;
+          update(`${this.url}/product/update-stock`, this.token, 
+            { id: product._id, value: oldStock })
+            .then((response) => {
+              if(!response.status == 201) {
+                console.warining(response.body);
+              }
+            }).catch((error) => {
+              console.error(error);
+            });
+        }
+      }
+    },
+    async getProduct(id) {
+      get(`${this.url}/product/${id}`, this.token)
+          .then((response) => {
+            if(!response.status == 200) {
+              return response;
+            }
+          }).catch((error) => {
+            console.error(error);
+            return null;
+          });
     },
     validate() {
       if (
@@ -311,7 +341,7 @@ export default {
     getIncrementalInvoice() {
       get(`${this.url}/params`, this.token)
         .then((response) => {
-          this.param = response.body.filter((el) => el.name === 'count-facturas' &&  el.state)[0];
+          this.param = response.body.filter((el) => el.name === 'count-facturas' && el.state)[0];
           this.dataInvoice.num_factura = this.param.value;
         }).catch((error) => {
           console.error(error);
@@ -348,7 +378,7 @@ export default {
   },
   created() {
     this.getEmployees();
-    this.getProducts();
+    this.getProducts(true);
     this.getIncrementalInvoice();
   },
 };

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Reports from '../views/reports/Index.vue';
 
 Vue.use(VueRouter)
 
@@ -33,7 +34,7 @@ const routes = [
   {
     path: '/reports',
     name: 'Reports',
-    component: () => import(/* webpackChunkName: "reports" */ '../views/reports/Index.vue')
+    component: Reports,
   },
 ]
 
