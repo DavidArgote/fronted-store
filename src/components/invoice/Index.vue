@@ -3,7 +3,8 @@
     <div
       class="alert alert-warning alert-dismissible fade show"
       role="alert"
-      v-show="message !== ''">
+      v-show="message !== ''"
+    >
       {{ message }}
       <button
         type="button"
@@ -27,7 +28,7 @@
             v-for="employee of employees"
             :key="employee._id"
             :value="employee.name + ' ' + employee.lastname"
-            >{{ employee.name + " " + employee.lastname }}</option
+            >{{ employee.name + ' ' + employee.lastname }}</option
           >
         </select>
       </label>
@@ -143,16 +144,16 @@
         <h6>
           Subtotal:
           <strong
-            >${{ new Intl.NumberFormat("es-CO").format(subtotal) }}</strong
+            >${{ new Intl.NumberFormat('es-CO').format(subtotal) }}</strong
           >
         </h6>
         <h6>
           IVA:
-          <strong>${{ new Intl.NumberFormat("es-CO").format(iva) }}</strong>
+          <strong>${{ new Intl.NumberFormat('es-CO').format(iva) }}</strong>
         </h6>
         <h6>
           Total:
-          <strong>${{ new Intl.NumberFormat("es-CO").format(total) }}</strong>
+          <strong>${{ new Intl.NumberFormat('es-CO').format(total) }}</strong>
         </h6>
       </div>
       <div class="col-lg-6 d-flex flex-row-reverse">
@@ -161,11 +162,13 @@
         </button>
       </div>
     </div>
-    <div class="modal fade"
+    <div
+      class="modal fade"
       id="modal-cart"
       tabindex="-1"
       aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -208,7 +211,8 @@
                   <td>
                     <button
                       class="btn btn-primary"
-                      @click="addProductToInvoice(product)">
+                      @click="addProductToInvoice(product)"
+                    >
                       Agregar
                     </button>
                   </td>
@@ -223,165 +227,174 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
-import { post, get, update } from "@/assets/network/request";
-import moment from 'moment';
+import { mapState, mapActions } from 'vuex'
+import { post, get, update } from '@/assets/network/request'
+import moment from 'moment'
 
 export default {
-  name: "Invoice",
+  name: 'Invoice',
   data() {
     return {
       listProducts: [],
-      valueFilter: "",
+      valueFilter: '',
       listProductsInvoice: [],
       total: 0,
       subtotal: 0,
       iva: 0,
       dataInvoice: {
         client: {
-          cc: "",
-          name: "",
-          address: "",
-          cellphone: "",
+          cc: '',
+          name: '',
+          address: '',
+          cellphone: '',
         },
-        seller: "",
+        seller: '',
         total_pay: 0,
         total_iva: 0,
-        method_pay: "Efectivo",
-        num_factura: "",
+        method_pay: 'Efectivo',
+        num_factura: '',
         date: '',
         products: [],
       },
-      message: "",
+      message: '',
       param: {},
-    };
+    }
   },
   computed: {
-    ...mapState(["employees", "products", "token", "url"]),
+    ...mapState(['employees', 'products', 'token', 'url']),
   },
   methods: {
-    ...mapActions(["getEmployees", "getProducts"]),
+    ...mapActions(['getEmployees', 'getProducts']),
     filterProducts() {
       this.listProducts = this.products.filter(
-        (element) => element.name.toLowerCase().indexOf(this.valueFilter) >= 0
-      );
-      if (this.valueFilter === "") {
-        this.listProducts = [];
+        element => element.name.toLowerCase().indexOf(this.valueFilter) >= 0
+      )
+      if (this.valueFilter === '') {
+        this.listProducts = []
       }
     },
     addProductToInvoice(product) {
-      product.quantity = 1;
-      this.listProductsInvoice.push(product);
+      product.quantity = 1
+      this.listProductsInvoice.push(product)
     },
     saveInvoice() {
       if (this.validate()) {
-        this.dataInvoice.products = this.listProductsInvoice;
-        this.dataInvoice.total_pay = this.total;
-        this.dataInvoice.total_iva = this.iva;
-        this.dataInvoice.date = moment().subtract(1, 'days');
+        this.dataInvoice.products = this.listProductsInvoice
+        this.dataInvoice.total_pay = this.total
+        this.dataInvoice.total_iva = this.iva
+        this.dataInvoice.date = moment()
+        //this.dataInvoice.date = moment().subtract(1, 'days')
         post(`${this.url}/invoice`, this.token, this.dataInvoice)
-          .then((response) => {
+          .then(response => {
             if (response.status) {
-              this.message = "Factura guardada con exito!";
-              this.updateIncrementalInvoice();
-              this.updateStocks(this.dataInvoice.products);
+              this.message = 'Factura guardada con exito!'
+              this.updateIncrementalInvoice()
+              this.updateStocks(this.dataInvoice.products)
             }
           })
-          .catch((error) => {
-            console.error(error);
-          });
+          .catch(error => {
+            console.error(error)
+          })
       } else {
-        this.message = "Falta información importante en la factura";
+        this.message = 'Falta información importante en la factura'
       }
     },
     async updateStocks(listProducts) {
-      if(listProducts.length > 0) {
-        for(let product of listProducts) {
-          let oldStock = await this.getProduct(product._id).stock;
-          oldStock -= 1;
-          if(!oldStock) oldStock = 0;
-          update(`${this.url}/product/update-stock`, this.token, 
-            { id: product._id, value: oldStock })
-            .then((response) => {
-              if(!response.status == 201) {
-                console.warining(response.body);
+      if (listProducts.length > 0) {
+        for (let product of listProducts) {
+          let oldStock = await this.getProduct(product._id).stock
+          oldStock -= 1
+          if (!oldStock) oldStock = 0
+          update(`${this.url}/product/update-stock`, this.token, {
+            id: product._id,
+            value: oldStock,
+          })
+            .then(response => {
+              if (!response.status == 201) {
+                console.warining(response.body)
               }
-            }).catch((error) => {
-              console.error(error);
-            });
+            })
+            .catch(error => {
+              console.error(error)
+            })
         }
       }
     },
     async getProduct(id) {
       get(`${this.url}/product/${id}`, this.token)
-          .then((response) => {
-            if(!response.status == 200) {
-              return response;
-            }
-          }).catch((error) => {
-            console.error(error);
-            return null;
-          });
+        .then(response => {
+          if (!response.status == 200) {
+            return response
+          }
+        })
+        .catch(error => {
+          console.error(error)
+          return null
+        })
     },
     validate() {
       if (
-        this.dataInvoice.client.cc === "" ||
-        (this.dataInvoice.client.name === "" &&
-          this.dataInvoice.client.cellphone === "")
+        this.dataInvoice.client.cc === '' ||
+        (this.dataInvoice.client.name === '' &&
+          this.dataInvoice.client.cellphone === '')
       ) {
-        return false;
-      } else if (this.dataInvoice.seller === "") {
-        return false;
+        return false
+      } else if (this.dataInvoice.seller === '') {
+        return false
       } else if (!this.listProductsInvoice.length > 0) {
-        return false;
+        return false
       } else {
-        return true;
+        return true
       }
     },
     getIncrementalInvoice() {
       get(`${this.url}/params`, this.token)
-        .then((response) => {
-          this.param = response.body.filter((el) => el.name === 'count-facturas' && el.state)[0];
-          this.dataInvoice.num_factura = this.param.value;
-        }).catch((error) => {
-          console.error(error);
-        });
+        .then(response => {
+          this.param = response.body.filter(
+            el => el.name === 'count-facturas' && el.state
+          )[0]
+          this.dataInvoice.num_factura = this.param.value
+        })
+        .catch(error => {
+          console.error(error)
+        })
     },
     updateIncrementalInvoice() {
-      this.param.value = Number(this.param.value + 1);
+      this.param.value = Number(this.param.value + 1)
       update(`${this.url}/params`, this.token, this.param)
-        .then((response) => {
-          if(response.status === 201) {
-            this.getIncrementalInvoice();
+        .then(response => {
+          if (response.status === 201) {
+            this.getIncrementalInvoice()
           }
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
   },
   watch: {
     listProductsInvoice: {
       handler(listProductsInvoice) {
         this.subtotal = listProductsInvoice.reduce((previus, current) => {
-          const prevPrice = previus.price || previus;
-          const prevQuantity = previus.quantity || 1;
-          return prevPrice * prevQuantity + current.price * current.quantity;
-        }, 0);
+          const prevPrice = previus.price || previus
+          const prevQuantity = previus.quantity || 1
+          return prevPrice * prevQuantity + current.price * current.quantity
+        }, 0)
         this.iva = listProductsInvoice.reduce((previus, current) => {
-          const prevPrice = previus.iva || previus;
-          const prevQuantity = previus.quantity || 1;
-          return prevPrice * prevQuantity + current.iva * current.quantity;
-        }, 0);
-        this.total = this.subtotal + this.iva;
+          const prevPrice = previus.iva || previus
+          const prevQuantity = previus.quantity || 1
+          return prevPrice * prevQuantity + current.iva * current.quantity
+        }, 0)
+        this.total = this.subtotal + this.iva
       },
     },
   },
   created() {
-    this.getEmployees();
-    this.getProducts(true);
-    this.getIncrementalInvoice();
+    this.getEmployees()
+    this.getProducts(true)
+    this.getIncrementalInvoice()
   },
-};
+}
 </script>
 
 <style scoped>
