@@ -1,19 +1,26 @@
-# client-tienda
+# Cliente aplicación Store
 
-## Project setup
+Este proyecto es parte de un proyecto final para la materia de modelamiento de bases de datos.
+
+Desarrollador: Wilder David Argote Vasquez Carrera: Ingeniería de sistemas Asignatura: Modelamiento de bases de datos
+
+## Tecnologías
+- Vue.js: https://vuejs.org/
+- Bootstrap v5-beta3: https://getbootstrap.com/
+
+## Ejecutar projecto
+
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Iniciar sercidor del proyecto
+
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Compilación
 ```
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
